@@ -1,0 +1,44 @@
+.card {
+  position: relative;
+  background: #1a1d27;
+  border: 1px solid #2e3148;
+  border-radius: 8px;
+  padding: 16px 20px;
+  min-width: 180px;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: #555;
+  font-size: 12px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.delete-btn:hover {
+  color: #e05050;
+  background: rgba(224, 80, 80, 0.1);
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+p {
+  font-size: 13px;
+  color: #a0a0b0;
+  margin-bottom: 6px;
+}
+
+p span {
+  color: #e0e0e0;
+}
