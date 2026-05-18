@@ -1,22 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Position } from '../models/position-model';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PortfolioService {
-  private readonly API_KEY = ""
-  public readonly baseURL = "https://finnhub.io/api/v1"
-
-  
-
   private readonly STORAGE_KEY = "portfolio-positions";
   private positions: Position[] = [];
 
-  private getLivePrice(): void {
-    
-    return 
+  updateCurrentPrice(ticker: string, newPrice: number): void {
+    const position = this.positions.find(p => p.ticker === ticker);
+    if (!position) return;
+
+    position.currentPrice = newPrice
+    this.saveToStorage();
   }
 
   private loadFromStorage(): Position[] {
@@ -70,7 +69,7 @@ export class PortfolioService {
     this.removeFromStorage(position);
   }
 
-  constructor() {
+  constructor(private http: HttpClient) {
     this.positions = this.loadFromStorage();
   }
 }
