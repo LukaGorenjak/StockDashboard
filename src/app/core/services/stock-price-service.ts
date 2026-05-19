@@ -4,17 +4,12 @@ import { Observable } from 'rxjs';
 import { FinnhubQuote } from '../models/position-model';
 import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root',
-})
-
+@Injectable({ providedIn: 'root' })
 export class StockPriceService {
   private http = inject(HttpClient);
-  private readonly API_KEY = environment.finnhubApiKey;
-  public readonly URL = "https://finnhub.io/api/v1";
+  private readonly API = 'http://localhost:5089/api/prices';
 
   getQuote(ticker: string): Observable<FinnhubQuote> {
-    const url = `${this.URL}/quote?symbol=${ticker}&token=${this.API_KEY}`;
-    return this.http.get<FinnhubQuote>(url);
+    return this.http.get<FinnhubQuote>(`${this.API}/${ticker}`);
   }
 }

@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Position } from '../models/position-model';
+import { StockPriceService } from './stock-price-service';
 
 
 @Injectable({ providedIn: 'root' })
@@ -23,11 +24,9 @@ export class PortfolioService {
     return this.http.delete<void>(`${this.API}/${position.ticker}`);
   }
 
-  // updateCurrentPrice(ticker: string, price: number): Observable<void> {
-  //   // You'll implement this properly in Phase 4 when Finnhub moves to backend
-  //   // For now just a placeholder so StockPriceService doesn't break
-  //   return this.http.patch<void>(`${this.API}/${ticker}/price`, { currentPrice: price });
-  // }
+  updateCurrentPrice(ticker: string, price: number): Observable<void> {
+    return this.http.patch<void>(`${this.API}/${ticker}/price`, { currentPrice: price });
+  }
 
   getTotalValue(): number {
     // Placeholder implementation, replace with actual logic in Phase 4

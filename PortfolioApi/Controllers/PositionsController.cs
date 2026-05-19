@@ -41,4 +41,17 @@ public class PositionsController : ControllerBase
         await _db.SaveChangesAsync();
         return NoContent();
     }
+
+    [HttpPatch("{ticker}/price")]
+    public async Task<IActionResult> UpdatePrice(string ticker, [FromBody] UpdatePriceDto dto)
+    {
+        var position = await _db.Positions.FirstOrDefaultAsync(p => p.Ticker == ticker);
+        if (position is null) return NotFound();
+
+        position.CurrentPrice = dto.CurrentPrice;
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
 }
+
+public record UpdatePriceDto(decimal CurrentPrice);

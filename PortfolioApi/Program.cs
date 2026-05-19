@@ -7,6 +7,9 @@ using PortfolioApi.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddHttpClient();              // ← enables IHttpClientFactory
+builder.Services.AddMemoryCache();             // ← enables IMemoryCache
+builder.Services.AddScoped<PortfolioApi.Services.FinnhubService>();  // ← registers your service
 builder.Services.AddOpenApi();
 builder.Services.AddCors(options =>
 {

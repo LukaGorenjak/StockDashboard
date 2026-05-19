@@ -1,4 +1,6 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { PortfolioService } from '../../core/services/portfolio-service';
 import { StockCard } from '../stock-card/stock-card';
 import { RouterLink } from '@angular/router';
@@ -7,14 +9,16 @@ import { StockPriceService } from '../../core/services/stock-price-service';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [StockCard, RouterLink],
+  imports: [StockCard, RouterLink, CurrencyPipe],
   template: `
     <div class="summary">
       <div class="summary-card">
         <p>Total Value</p>
+        <p>{{ totalValue() | currency }}</p>
       </div>
       <div class="summary-card">
         <p>Total PnL</p>
+        <p [style.color]="totalPnL() >= 0 ? 'green' : 'red'">{{ totalPnL() | currency }}</p>
       </div>
       <div class="add-link">
         <a routerLink="/add-position">+</a>
@@ -48,6 +52,14 @@ export class Dashboard implements OnInit {
   isLoading = signal(false);
   errorMessage = signal('');
 
+  totalValue = computed(() =>
+    this.positions().reduce((sum, p) => sum + p.currentPrice * p.amount, 0)
+  );
+
+  totalPnL = computed(() =>
+    this.positions().reduce((sum, p) => sum + (p.currentPrice - p.buyPrice) * p.amount, 0)
+  );
+
   ngOnInit() {
     this.loadPositions();
   }
@@ -59,10 +71,32 @@ export class Dashboard implements OnInit {
     this.portfolio.getPositions().subscribe({
       next: (data) => {
         this.positions.set(data);
-        this.isLoading.set(false);
+        this.loadAllPrices(data);
       },
       error: () => {
         this.errorMessage.set('Could not load positions.');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  private loadAllPrices(positions: Position[]) {
+    if (positions.length === 0) {
+      this.isLoading.set(false);
+      return;
+    }
+
+    const requests = positions.map(p => this.priceService.getQuote(p.ticker));
+
+    forkJoin(requests).subscribe({
+      next: (quotes) => {
+        this.positions.update(current =>
+          current.map((p, i) => ({ ...p, currentPrice: quotes[i].c }))
+        );
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.errorMessage.set(`Failed to fetch live prices. ${err.message}`);
         this.isLoading.set(false);
       }
     });
@@ -73,18 +107,7 @@ export class Dashboard implements OnInit {
 
     this.portfolio.removePosition(position).subscribe({
       next: () => this.loadPositions(),
-      error: () => this.errorMessage.set('Failed to delete position.')
-    });
-  }
-
-  refreshPrice(ticker: string) {
-    this.priceService.getQuote(ticker).subscribe({
-      next: (quote) => {
-        this.positions.update(positions =>
-          positions.map(p => p.ticker === ticker ? { ...p, currentPrice: quote.c } : p)
-        );
-      },
-      error: () => this.errorMessage.set(`Failed to fetch price for ${ticker}`)
+      error: (err) => this.errorMessage.set(`Failed to delete position. ${err.message}`)
     });
   }
 }
