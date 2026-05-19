@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Position } from '../../core/models/position-model';
 import { PortfolioService } from '../../core/services/portfolio-service';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-add-position',
@@ -36,7 +36,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
   styleUrl: './add-position.css',
 })
 export class AddPosition {
-  route: ActivatedRoute = inject(ActivatedRoute)
+  private router = inject(Router);
   portfolioService = inject(PortfolioService);
 
   positionForm = new FormGroup({
@@ -46,15 +46,17 @@ export class AddPosition {
   })
 
   onSubmit() {
-  if (this.positionForm.invalid) return;
-  const { ticker, amount, buyPrice } = this.positionForm.value;
-  this.portfolioService.addPosition({
-    ticker: ticker!,
-    amount: amount!,
-    buyPrice: buyPrice!,
-    currentPrice: buyPrice!
-  });
-  this.positionForm.reset();
-}
+    if (this.positionForm.invalid) return;
+    const { ticker, amount, buyPrice } = this.positionForm.value;
+    this.portfolioService.addPosition({
+      ticker: ticker!,
+      amount: amount!,
+      buyPrice: buyPrice!,
+      currentPrice: buyPrice!
+    }).subscribe({
+      next: () => this.router.navigate(['/']),
+      error: () => { /* handle error if needed */ }
+    });
+  }
 
 }

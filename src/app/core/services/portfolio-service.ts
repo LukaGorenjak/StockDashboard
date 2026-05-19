@@ -1,75 +1,42 @@
-import { Injectable } from '@angular/core';
-import { Position } from '../models/position-model';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Position } from '../models/position-model';
 
-@Injectable({
-  providedIn: 'root',
-})
+
+@Injectable({ providedIn: 'root' })
 export class PortfolioService {
-  private readonly STORAGE_KEY = "portfolio-positions";
-  private positions: Position[] = [];
+  private http = inject(HttpClient);
 
-  updateCurrentPrice(ticker: string, newPrice: number): void {
-    const position = this.positions.find(p => p.ticker === ticker);
-    if (!position) return;
+  // Replace 5095 with your actual http port
+  private readonly API = 'http://localhost:5089/api/positions';
 
-    position.currentPrice = newPrice
-    this.saveToStorage();
+  getPositions(): Observable<Position[]> {
+    return this.http.get<Position[]>(this.API);
   }
 
-  private loadFromStorage(): Position[] {
-    const raw = localStorage.getItem(this.STORAGE_KEY)
-    return raw ? JSON.parse(raw) : [];
+  addPosition(position: Position): Observable<Position> {
+    return this.http.post<Position>(this.API, position);
   }
 
-  private saveToStorage(): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.positions))
+  removePosition(position: Position): Observable<void> {
+    return this.http.delete<void>(`${this.API}/${position.ticker}`);
   }
 
-  private removeFromStorage(position: Position): void {
-    const index = this.positions.indexOf(position);
-    if (index !== -1) this.positions.splice(index, 1);
-    this.saveToStorage()
-  }
-
-  getPositions(): Position[] {
-    this.positions = this.loadFromStorage();
-    return this.positions;
-  }
+  // updateCurrentPrice(ticker: string, price: number): Observable<void> {
+  //   // You'll implement this properly in Phase 4 when Finnhub moves to backend
+  //   // For now just a placeholder so StockPriceService doesn't break
+  //   return this.http.patch<void>(`${this.API}/${ticker}/price`, { currentPrice: price });
+  // }
 
   getTotalValue(): number {
-    return this.positions.reduce(
-      (total, position) => total + position.currentPrice * position.amount, 0
-    );
-  }
-
-  getTotalCost(): number {
-    return this.positions.reduce(
-      (total, position) => total + position.buyPrice * position.amount, 0
-    );
+    // Placeholder implementation, replace with actual logic in Phase 4
+    return 0;
   }
 
   getTotalPnL(): number {
-    return this.getTotalValue() - this.getTotalCost();
+    // Placeholder implementation, replace with actual logic in Phase 4
+    return 0;
   }
 
-  getPositionPnL(p: Position): number {
-    return (p.currentPrice - p.buyPrice) * p.amount;
-  }
-
-  addPosition(position: Position): void {
-    this.positions.push(position);
-    this.saveToStorage()
-  }
-
-  removePosition(position: Position): void {
-    const index = this.positions.indexOf(position);
-    if (index !== -1) this.positions.splice(index, 1);
-    this.removeFromStorage(position);
-  }
-
-  constructor(private http: HttpClient) {
-    this.positions = this.loadFromStorage();
-  }
 }
