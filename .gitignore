@@ -6,6 +6,18 @@
 /out-tsc
 /bazel-out
 
+# .NET build artifacts
+PortfolioApi/bin/
+PortfolioApi/obj/
+
+# Database files
+PortfolioApi/*.db
+PortfolioApi/*.db-shm
+PortfolioApi/*.db-wal
+
+# Sensitive config (API keys live here)
+PortfolioApi/appsettings.Development.json
+
 # Node
 /node_modules
 npm-debug.log
