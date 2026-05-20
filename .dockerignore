@@ -1,0 +1,15 @@
+PortfolioApi/bin/
+PortfolioApi/obj/
+PortfolioApi/*.db
+PortfolioApi/*.db-shm
+PortfolioApi/*.db-wal
+PortfolioApi/appsettings.Development.json
+
+data/
+
+node_modules/
+dist/
+.angular/
+.git/
+.vscode/
+.env

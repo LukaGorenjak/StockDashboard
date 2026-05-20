@@ -7,9 +7,9 @@ using PortfolioApi.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddHttpClient();              // ← enables IHttpClientFactory
-builder.Services.AddMemoryCache();             // ← enables IMemoryCache
-builder.Services.AddScoped<PortfolioApi.Services.FinnhubService>();  // ← registers your service
+builder.Services.AddHttpClient();              
+builder.Services.AddMemoryCache();            
+builder.Services.AddScoped<PortfolioApi.Services.FinnhubService>(); 
 builder.Services.AddOpenApi();
 builder.Services.AddCors(options =>
 {
@@ -19,14 +19,20 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=portfolio.db"));
+    options.UseSqlite("Data Source=/app/data/portfolio.db"));
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();             // registers /openapi/v1.json
-    app.MapScalarApiReference();  // serves the Scalar UI at /scalar/v1
+    app.MapOpenApi();             
+    app.MapScalarApiReference();  
 }
 
 app.UseHttpsRedirection();

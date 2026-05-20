@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Position } from '../models/position-model';
-import { StockPriceService } from './stock-price-service';
 
 
 @Injectable({ providedIn: 'root' })
@@ -10,7 +9,7 @@ export class PortfolioService {
   private http = inject(HttpClient);
 
   // Replace 5095 with your actual http port
-  private readonly API = 'http://localhost:5089/api/positions';
+  private readonly API = 'http://localhost:8080/api/positions';
 
   getPositions(): Observable<Position[]> {
     return this.http.get<Position[]>(this.API);

@@ -51,6 +51,12 @@ testem.log
 /typings
 __screenshots__/
 
+# Secrets
+.env
+
+# Docker data volume (database lives here at runtime)
+/data/*.db
+
 # System files
 .DS_Store
 Thumbs.db
